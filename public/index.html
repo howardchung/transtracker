@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    #map {
+      height: 800px;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <h3>Redmond/Bellevue B Line Bus Tracker</h3>
+  <h5 id="time"></h5>
+  <div id="map"></div>
+  <script>
+    function initMap() {
+      let markers = [];
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 13,
+        center: { lat: 47.655, lng: -122.15 },
+      });
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          infoWindow.setPosition(pos);
+          infoWindow.setContent('Location found.');
+          infoWindow.open(map);
+          map.setCenter(pos);
+        }, function() {
+          handleLocationError(true, infoWindow, map.getCenter());
+        });
+      }
+      else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+
+      function updateMarkers() {
+        fetch('/api').then(resp => resp.json()).then(response => {
+          // Remove existing markers
+          markers.forEach(mark => {
+            mark.setMap(null);
+          });
+          markers = [];
+          // Create new markers
+          response.result.travelPoints.forEach(rp => {
+            var start = new Date();
+            start.setHours(0,0,rp.Time,0);
+            document.getElementById('time').innerHTML = start.toTimeString();
+            var point = { lat: Number(rp.Lat), lng: Number(rp.Lon) };
+            var marker = new google.maps.Marker({
+              position: point,
+              label: rp.LineDirId === 6724 ? 'R' : 'B',
+              map: map
+            });
+            markers.push(marker);
+          });
+        });
+      }
+      updateMarkers();
+      setInterval(updateMarkers, 15000);
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCS1nE3eGLvW_D5pAJQ9_iuuoC1lMNJ7ts&callback=initMap">
+  </script>
+</body>
+
+</html>
