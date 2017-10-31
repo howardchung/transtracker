@@ -54,7 +54,12 @@
       */
 
       function updateMarkers() {
-        window.fetch('./RealTimeManager', { method: 'POST', body: JSON.stringify(getTravelPoints) }).then(resp => resp.json()).then(response => {
+        window.fetch('./RealTimeManager', { method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }, 
+        body: JSON.stringify(getTravelPoints) })
+        .then(resp => resp.json()).then(response => {
           // Remove existing markers
           markers.forEach(mark => {
             mark.setMap(null);
