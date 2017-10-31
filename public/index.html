@@ -15,12 +15,23 @@
   <h5 id="time"></h5>
   <div id="map"></div>
   <script>
+    var google = window.google;
+    //RealTimeManager
+    // 6724 B line redmond
+    // 6725 B line bellevue
+    const getListOfLines = {"version":"1.1","method":"GetListOfLines"};
+    const getTravelPoints = {"version":"1.1","method":"GetTravelPoints","params":{"travelPointsReqs":[{"lineDirId":"6724","callingApp":"RMD"},{"lineDirId":"6725","callingApp":"RMD"}],"interval":1}}
+    const getLineTrace = {"version":"1.1","method":"GetLineTraceAndStops","params":{"LineDirId":6724}};
+    //InfoWeb
+    const getBusTimes = {"version":"1.1","method":"GetBusTimes","params":{"LinesRequest":{"FromTime":3720,"StopId":73342,"Radius":0,"NumTimesPerLine":5,"NumStopTimes":20},"Appid":"Desktop","Client":"RMD"}};
+    
     function initMap() {
       let markers = [];
       var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 13,
         center: { lat: 47.655, lng: -122.15 },
       });
+      /*
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           var pos = {
@@ -40,9 +51,10 @@
         // Browser doesn't support Geolocation
         handleLocationError(false, infoWindow, map.getCenter());
       }
+      */
 
       function updateMarkers() {
-        fetch('/api').then(resp => resp.json()).then(response => {
+        window.fetch('./RealTimeManager', { method: 'POST', json: getTravelPoints }).then(resp => resp.json()).then(response => {
           // Remove existing markers
           markers.forEach(mark => {
             mark.setMap(null);
